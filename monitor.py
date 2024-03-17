@@ -20,14 +20,13 @@ def ping_host(ip_address):
     command = ["ping", "-c", "1", ip_address]
     return subprocess.call(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
 
-def send_slack_notification(message, channel=SLACK_CHANNEL):
+def send_slack_notification(message, channel=SLACK_CHANNEL, success=True):
+    emoji = ":white_check_mark:" if success else ":octagonal_sign:"
     payload = {
-        "text": message,
+        "text": f"{emoji} {message}",
         "channel": channel
     }
     response = requests.post(SLACK_WEBHOOK_URL, json=payload)
-    print(f"Slack notification sent: {message}")
-    print(f"Response from Slack: {response.text}")
 
 def monitor_ip(ip_address):
     first_success = True
@@ -47,11 +46,11 @@ def monitor_ip(ip_address):
                 last_success_time = datetime.datetime.now()
                 if last_failure_time:
                     time_between_failure_and_success = last_success_time - first_failure_time
-                    send_slack_notification(f"Successfully pinged {ip_address} after {time_between_failure_and_success} of failure")
+                    send_slack_notification(f"Successfully pinged {ip_address} after {time_between_failure_and_success} of failure", success=True)
                     first_failure = True
                     last_failure_time = None
                 else:
-                    send_slack_notification(f"Successfully pinged {ip_address} at {last_success_time}")
+                    send_slack_notification(f"Successfully pinged {ip_address} at {last_success_time}", success=True)
             else:
                 last_success_time = datetime.datetime.now()
             print(f"Last successful ping time: {last_success_time}")
@@ -62,11 +61,11 @@ def monitor_ip(ip_address):
                 last_failure_time = datetime.datetime.now()
                 if last_success_time:
                     time_between_success_and_failure = last_failure_time - first_success_time
-                    send_slack_notification(f"Failed to ping {ip_address} after {time_between_success_and_failure} of success")
+                    send_slack_notification(f"Failed to ping {ip_address} after {time_between_success_and_failure} of success", success=False)
                     first_success = True
                     last_success_time = None
                 else:
-                    send_slack_notification(f"Failed to ping {ip_address} at {last_failure_time}")
+                    send_slack_notification(f"Failed to ping {ip_address} at {last_failure_time}", success=False)
             else:
                 last_failure_time = datetime.datetime.now()
             print(f"Last failure time: {last_failure_time}")
