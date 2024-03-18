@@ -1,6 +1,13 @@
 # ip-monitor
 Simple python script that can be run as a systemd service to monitor an ip address and send notification of changes in state to a Slack channel via webhook
 
+## Change Variables used for Slack Webhook
+You need to replace the values of 2 variables with your own unique values: `SLACK_WEBHOOK_URL` and `SLACK_CHANNEL`. More details about how to create and use Slack Webhooks can be found [here](https://api.slack.com/messaging/webhooks). Example variables:
+```
+SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+SLACK_CHANNEL = "#genmon"
+```
+
 ## Run Script from Linux console
 python3 monitor.py
 
